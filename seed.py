@@ -1,0 +1,26 @@
+import asyncio
+from database import engine, Base, async_session_factory
+from models import Account, Client
+
+async def seed_data():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+        async with async_session_factory() as session:
+            c1 = Client(full_name="Иван Иванов", email="ivan@ex.com")
+            c2 = Client(full_name="Петр Петров", email="petr@ex.com")
+            c3 = Client(full_name="Василий Васильев", email="vasiliy@.com")
+            session.add_all([c1, c2, c3])
+            await session.flush()#получаем ID клиентов
+
+            a1 = Account(account_number='408967340000000000001'
+                         client_id=c1.id, balance=15000.0)
+            a2 = Account(account_number='408967340000000000002',client_id=c2.id, balance=500.0)
+            a3 = Account(account_number='408967340000000000003',client_id=c3.id, balance=8000.0)
+            a4 = Account(account_number='408759345783483873480',client_id=c4.id,balance=1200.0, is_active=False)
+            session.add_all([a1, a2, a3, a4])
+            await session.commit()
+            print('БД инициализирована')
+if __name__ == '__main__':
+    asyncio.run(seed_data())
