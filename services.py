@@ -3,20 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import Account, TransactionHistory
 
 async def transfer_funds(
-        session: AsyncSession,
-        sender_account_id: int,
-        receiver_account_id: int,
-        amount: float
+       session: AsyncSession,
+       sender_account_id: int,
+       receiver_account_id: int,
+       amount: float
 ) -> bool:
-    if amount < 0:
+    if amount <= 0:
         raise ValueError('Сумма перевода должна быть больше 0')
-    if sender_account_id == receiver_account_id,
+    if sender_account_id == receiver_account_id:
         failed_tx = TransactionHistory(
-        sender_account_id=sender_account_id,
-        receiver_account_id=receiver_account_id,
-        amount=amount,
-        status='FAILED'
-        description='Перевод на один и тот же счет'
+            sender_account_id=sender_account_id,
+            receiver_account_id=receiver_account_id,
+            amount=amount,
+            status='FAILED',
+            description='Перевод на один и тот же счет'
         )
         session.add(failed_tx)
         await session.commit()
@@ -37,9 +37,9 @@ async def transfer_funds(
 
         if not sender.is_active or not receiver.is_active:
             raise ValueError('Один или оба счета неактивны')
+
         if sender.balance < amount:
             raise ValueError('Недостаточно средств')
-
 
         sender.balance -= amount
         # sender.balance = sender.balance - amount
@@ -57,17 +57,14 @@ async def transfer_funds(
         return True
 
     except Exception as e:
-         await session.rollback()
-failed_tx = TransactionHistory(
-        sender_account_id=sender_account_id,
-        receiver_account_id=receiver_account_id,
-        amount=amount,
-        status='FAILED'
-        description=str(e)
+        await session.rollback()
+        failed_tx = TransactionHistory(
+            sender_account_id=sender_account_id,
+            receiver_account_id=receiver_account_id,
+            amount=amount,
+            status='FAILED',
+            description=str(e)
         )
         session.add(failed_tx)
         await session.commit()
         return False
-
-
-

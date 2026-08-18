@@ -34,7 +34,7 @@ async def generate_audit_report(session: AsyncSession, client_id: int):
         print(' Операции отсутствуют.')
     else:
         for tx in recent_trans:
-            print(f' [{tx.timestamp.strftime("%Y-%m-%d %H:%M:%S")}]
+            print(f' [{tx.timestamp.strftime("%Y-%m-%d %H:%M:%S")}]'
                   f'ID: {tx.id} | Отправитель ID: {tx.sender_account_id}'
                   f'->Получатель ID: {tx.receiver_account_id}'
                   f'Сумма: {tx.amount} | Статус: {tx.status}'
